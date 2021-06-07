@@ -51,4 +51,4 @@ const me = {
 
 //********* Any  *********/
 
-// suck don't use it.
+// Only use this when working with existing JavaScript that is being gradually converted into TypeScript.
