@@ -1,23 +1,42 @@
-const button = document.querySelector("button");
+class Department {
+  // private readonly id: string; // See short-hand property initialisation in constructor
+  // public name: string;
+  private employees: string[] = []; // First, the variable is assigned to a type, then the value of an empty array.
 
-// This comment will be removed on compilation.
+  // The private keyword prevents the value of employees from being modified by any expression outside of the class (bracket notation, push etc).
 
-function add(n1: number, n2: number) {
-  if (n1 > 5) {
-    return n1 + n2;
+  constructor(private readonly id: string, public name: string) {
+    // These class properties can be initalised with in the brackets on the constructor
+    // this.id = id;
+    // this.name = n;
   }
-  return;
-  // noImplicitReturns: true in tsconfig causes tsc to throw a compliation error if the above return statement isn't present.
+
+  describe(this: Department) {
+    console.log(`Department ${this.id}: ${this.name}`);
+  }
+
+  addEmployee(this: Department, employee: string) {
+    this.employees.push(employee);
+  }
+
+  printEmployeesList(this: Department) {
+    console.log(this.employees.length);
+    console.log(this.employees);
+  }
 }
 
-function clickHandler(message: string) {
-  console.log("Clicked! " + message);
-  // let username = "Max"; // noUnusedLocals: true in tsconfig causes tsc to throw a compliation error.
-}
+const accounting = new Department("AC4", "Accounting");
+accounting.describe();
+accounting.addEmployee("Steven");
+accounting.printEmployeesList();
+// accounting.employees.push("Something"); // Fails - employees is a private property
 
-if (button) {
-  button.addEventListener(
-    "click",
-    clickHandler.bind(null, "This is the message")
-  );
-}
+const accountingCopy = { addEmployee: accounting.addEmployee };
+// accountingCopy.addEmployee("Tony"); // Error: wrong/different this context
+// console.log(accountingCopy);
+
+// const accountingCopy = { describe: accounting.describe };
+// accountingCopy.describe(); // returns undefined as this refers to the caller, and accountingCopy has no name property
+
+// const accountingCopy = { name: "Dummy name", describe: accounting.describe };
+// accountingCopy.describe(); // Works as a name property is present on the object.
