@@ -1,5 +1,5 @@
 "use strict";
-class Department {
+class Department2 {
     constructor(id, name) {
         this.id = id;
         this.name = name;
@@ -16,8 +16,50 @@ class Department {
         console.log(this.employees);
     }
 }
-const accounting = new Department("AC4", "Accounting");
-accounting.describe();
-accounting.addEmployee("Steven");
-accounting.printEmployeesList();
-const accountingCopy = { addEmployee: accounting.addEmployee };
+class ITDepartment2 extends Department2 {
+    constructor(id, admins) {
+        super(id, "IT");
+        this.admins = admins;
+    }
+}
+class AccountingDepartment2 extends Department2 {
+    constructor(id, reports) {
+        super(id, "Accounting");
+        this.reports = reports;
+        this.lastReport = reports[0];
+    }
+    get mostRecentReport() {
+        if (this.lastReport) {
+            return this.lastReport;
+        }
+        throw new Error("No report found!");
+    }
+    set mostRecentReport(newReport) {
+        if (!newReport) {
+            throw new Error("Please pass in a valid report!");
+        }
+        this.addReport(newReport);
+    }
+    addEmployee(name) {
+        if (name === "Steven") {
+            return;
+        }
+        this.employees.push(name);
+    }
+    addReport(newReport) {
+        this.reports.push(newReport);
+        this.lastReport = newReport;
+    }
+    printReports() {
+        console.log(this.reports);
+    }
+}
+const accounting2 = new AccountingDepartment2("AC9", []);
+accounting2.addReport("Steven stole all the monies");
+console.log(accounting2.mostRecentReport);
+accounting2.mostRecentReport = "Oh, no. It was Bill again.";
+console.log(accounting2.mostRecentReport);
+accounting2.printReports();
+accounting2.addEmployee("Steven");
+accounting2.addEmployee("Maria");
+console.log(accounting2);

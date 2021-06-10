@@ -1,42 +1,86 @@
-class Department {
-  // private readonly id: string; // See short-hand property initialisation in constructor
-  // public name: string;
-  private employees: string[] = []; // First, the variable is assigned to a type, then the value of an empty array.
+// Note: class renamed to Department2 to prevent name conflicts with basics.js
 
-  // The private keyword prevents the value of employees from being modified by any expression outside of the class (bracket notation, push etc).
+class Department2 {
+  protected employees: string[] = []; // protected gives subclasses access to this property, but still protects it from being accessed anywhere else.
 
-  constructor(private readonly id: string, public name: string) {
-    // These class properties can be initalised with in the brackets on the constructor
-    // this.id = id;
-    // this.name = n;
-  }
+  constructor(private readonly id: string, public name: string) {}
 
-  describe(this: Department) {
+  describe(this: Department2) {
     console.log(`Department ${this.id}: ${this.name}`);
   }
 
-  addEmployee(this: Department, employee: string) {
+  addEmployee(this: Department2, employee: string) {
     this.employees.push(employee);
   }
 
-  printEmployeesList(this: Department) {
+  printEmployeesList(this: Department2) {
     console.log(this.employees.length);
     console.log(this.employees);
   }
 }
 
-const accounting = new Department("AC4", "Accounting");
-accounting.describe();
-accounting.addEmployee("Steven");
-accounting.printEmployeesList();
-// accounting.employees.push("Something"); // Fails - employees is a private property
+class ITDepartment2 extends Department2 {
+  public admins: string[];
 
-const accountingCopy = { addEmployee: accounting.addEmployee };
-// accountingCopy.addEmployee("Tony"); // Error: wrong/different this context
-// console.log(accountingCopy);
+  constructor(id: string, admins: string[]) {
+    super(id, "IT"); // super must be called before using 'this'
+    this.admins = admins;
+    // Shorthand initilisation is more conscise though.
+  }
+}
 
-// const accountingCopy = { describe: accounting.describe };
-// accountingCopy.describe(); // returns undefined as this refers to the caller, and accountingCopy has no name property
+class AccountingDepartment2 extends Department2 {
+  private lastReport: string;
 
-// const accountingCopy = { name: "Dummy name", describe: accounting.describe };
-// accountingCopy.describe(); // Works as a name property is present on the object.
+  get mostRecentReport() {
+    if (this.lastReport) {
+      return this.lastReport;
+    }
+    throw new Error("No report found!");
+  }
+
+  set mostRecentReport(newReport: string) {
+    if (!newReport) {
+      throw new Error("Please pass in a valid report!");
+    }
+    this.addReport(newReport);
+  }
+
+  constructor(id: string, private reports: string[]) {
+    super(id, "Accounting");
+    this.lastReport = reports[0];
+  }
+
+  // Overriding the base class method
+  addEmployee(name: string) {
+    if (name === "Steven") {
+      return;
+    }
+    this.employees.push(name);
+  }
+
+  addReport(newReport: string) {
+    this.reports.push(newReport);
+    this.lastReport = newReport;
+  }
+
+  printReports() {
+    console.log(this.reports);
+  }
+}
+
+// const it = new ITDepartment2("IT3", ["Steven"]);
+// it.describe();
+// it.addEmployee("Steven");
+// it.printEmployeesList();
+// console.log(it);
+
+const accounting2 = new AccountingDepartment2("AC9", []);
+accounting2.addReport("Steven stole all the monies");
+console.log(accounting2.mostRecentReport);
+accounting2.mostRecentReport = "Oh, no. It was Bill again.";
+console.log(accounting2.mostRecentReport);
+accounting2.printReports();
+accounting2.addEmployee("Steven"); // Won't work - see if clause
+accounting2.addEmployee("Maria");
+console.log(accounting2);
