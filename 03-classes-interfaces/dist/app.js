@@ -5,8 +5,8 @@ class Department2 {
         this.name = name;
         this.employees = [];
     }
-    describe() {
-        console.log(`Department ${this.id}: ${this.name}`);
+    static createEmployee(name) {
+        return { name };
     }
     addEmployee(employee) {
         this.employees.push(employee);
@@ -16,10 +16,17 @@ class Department2 {
         console.log(this.employees);
     }
 }
+Department2.fiscalYear = 2022;
+const newEmployee = Department2.createEmployee("James");
+console.log(newEmployee);
+console.log(Department2.fiscalYear);
 class ITDepartment2 extends Department2 {
     constructor(id, admins) {
         super(id, "IT");
         this.admins = admins;
+    }
+    describe() {
+        console.log("IT Department ID: " + this.id);
     }
 }
 class AccountingDepartment2 extends Department2 {
@@ -40,6 +47,16 @@ class AccountingDepartment2 extends Department2 {
         }
         this.addReport(newReport);
     }
+    static getInstance() {
+        if (this.instance) {
+            return this.instance;
+        }
+        this.instance = new AccountingDepartment2("AC9", []);
+        return this.instance;
+    }
+    describe() {
+        console.log("IT Department ID: " + this.id);
+    }
     addEmployee(name) {
         if (name === "Steven") {
             return;
@@ -54,7 +71,10 @@ class AccountingDepartment2 extends Department2 {
         console.log(this.reports);
     }
 }
-const accounting2 = new AccountingDepartment2("AC9", []);
+const it = new ITDepartment2("IT3", ["Steven"]);
+it.describe();
+const accounting2 = AccountingDepartment2.getInstance();
+accounting2.describe();
 accounting2.addReport("Steven stole all the monies");
 console.log(accounting2.mostRecentReport);
 accounting2.mostRecentReport = "Oh, no. It was Bill again.";
