@@ -9,12 +9,13 @@ const junior = {
     startDate: new Date(),
 };
 let universalData = 50;
-const add = (a, b) => {
+function add(a, b) {
     if (typeof a === "string" || typeof b === "string") {
         return a.toString() + b.toString();
     }
     return a + b;
-};
+}
+const result = add("Steven", "Webster");
 const printEmployeeInfo = (emp) => {
     console.log("Name: " + emp.name);
     if ("privileges" in emp) {
@@ -47,4 +48,36 @@ const useVehicle = (vehicle) => {
         vehicle.loadCargo(2000);
     }
 };
+useVehicle(v1);
 useVehicle(v2);
+const moveAnimal = (animal) => {
+    let movementVerb;
+    let speed;
+    switch (animal.type) {
+        case "air":
+            movementVerb = "Flying";
+            speed = animal.flyingSpeed;
+            break;
+        case "land":
+            movementVerb = "Running";
+            speed = animal.runningSpeed;
+            break;
+    }
+    console.log(`${movementVerb} at speed ${speed} km/hr`);
+};
+moveAnimal({ type: "air", flyingSpeed: 60 });
+const userInputElement = document.getElementById("user-input");
+userInputElement.value = "Foo";
+const errorBag = {
+    email: "Must be a valid email",
+    username: "Must be shorter than 32 characters!",
+};
+const fetchedUserData = {
+    id: "0393ddbe",
+    name: "Steven",
+};
+const user2Input = "";
+const storedData = user2Input || "DEFAULT";
+const storedData2 = user2Input !== null && user2Input !== void 0 ? user2Input : "DEFAULT";
+console.log(storedData);
+console.log(storedData2);
