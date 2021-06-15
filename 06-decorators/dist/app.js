@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 function Logger(logString) {
     console.log("I execute first!");
     return function (constructor) {
@@ -35,9 +38,27 @@ Person = __decorate([
     WithTemplate("<h1>Test</h1>", "output-container")
 ], Person);
 const person = new Person();
-function Log(target, propertyName) {
+function LogProductProperty(target, propertyName) {
     console.log("@Log decorator executing");
     console.log({ target, propertyName });
+}
+function LogProductMethod(target, propertyKey, descriptor) {
+    console.log("Method Accessor:");
+    console.log(target);
+    console.log(propertyKey);
+    console.log(descriptor);
+}
+function LogProductSetter(target, propertyKey, descriptor) {
+    console.log("Accessor decorator:");
+    console.log(target);
+    console.log(propertyKey);
+    console.log(descriptor);
+}
+function LogMethodParameter(target, propertyKey, parameterIdx) {
+    console.log("Parameter decorator:");
+    console.log(target);
+    console.log(propertyKey);
+    console.log(parameterIdx);
 }
 class Product {
     constructor(name, price) {
@@ -57,7 +78,12 @@ class Product {
     }
 }
 __decorate([
-    Log
+    LogProductProperty
 ], Product.prototype, "name", void 0);
-const product = new Product("Fish bowl", 50);
-console.log(product.getTaxInclusivePrice(1.09));
+__decorate([
+    LogProductSetter
+], Product.prototype, "price", null);
+__decorate([
+    LogProductMethod,
+    __param(0, LogMethodParameter)
+], Product.prototype, "getTaxInclusivePrice", null);
