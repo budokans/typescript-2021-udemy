@@ -122,3 +122,37 @@ class Product {
     return this._price * rate;
   }
 }
+
+// Write a method decorator that access the value of the method and binds this to the method.
+
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const adjustedDescriptor = {
+    enumerable: false,
+    configurable: true,
+    get() {
+      // define a bound function, i.e., a function that returns the original method with a this binding.
+      const boundFn = originalMethod.bind(this);
+      return boundFn;
+    },
+  };
+
+  return adjustedDescriptor;
+}
+
+class Printer {
+  message = "Clicked!";
+
+  @Autobind
+  showMessage() {
+    console.log(this.message);
+  }
+}
+
+const printer = new Printer();
+const button = document.querySelector("button")!;
+// button.addEventListener("click", printer.showMessage); // undefined - event listeners bind 'this' to event.target.
+
+// button.addEventListener("click", printer.showMessage.bind(printer)); // Works
+
+button.addEventListener("click", printer.showMessage); // Works because of the Autobind decorator that takes the original method and modifies it to return a bound function.

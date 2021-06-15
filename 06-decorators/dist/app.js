@@ -91,3 +91,29 @@ __decorate([
     LogProductMethod,
     __param(0, LogMethodParameter)
 ], Product.prototype, "getTaxInclusivePrice", null);
+function Autobind(_, _2, descriptor) {
+    const originalMethod = descriptor.value;
+    const adjustedDescriptor = {
+        enumerable: false,
+        configurable: true,
+        get() {
+            const boundFn = originalMethod.bind(this);
+            return boundFn;
+        },
+    };
+    return adjustedDescriptor;
+}
+class Printer {
+    constructor() {
+        this.message = "Clicked!";
+    }
+    showMessage() {
+        console.log(this.message);
+    }
+}
+__decorate([
+    Autobind
+], Printer.prototype, "showMessage", null);
+const printer = new Printer();
+const button = document.querySelector("button");
+button.addEventListener("click", printer.showMessage);
