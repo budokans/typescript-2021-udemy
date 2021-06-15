@@ -16,20 +16,24 @@ function Logger(logString) {
     };
 }
 function WithTemplate(template, hookId) {
-    console.log("I execute second!");
-    return function (constructor) {
-        console.log("WithTemplate decorator function here!");
-        const hookEl = document.getElementById(hookId);
-        const person = new constructor();
-        if (hookEl) {
-            hookEl.innerHTML = template;
-            hookEl.querySelector("h1").textContent = person.name;
-        }
+    console.log("Template Factory: I execute second!");
+    return function (originalConstructor) {
+        return class extends originalConstructor {
+            constructor(..._) {
+                super();
+                console.log("WithTemplate decorator function here!");
+                const hookEl = document.getElementById(hookId);
+                if (hookEl) {
+                    hookEl.innerHTML = template;
+                    hookEl.querySelector("h1").textContent = this.name;
+                }
+            }
+        };
     };
 }
 let Person = class Person {
-    constructor(name = "Steven") {
-        this.name = name;
+    constructor() {
+        this.name = "Steven";
         console.log("Create a person object");
     }
 };

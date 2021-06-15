@@ -15,17 +15,23 @@ function Logger(logString: string) {
   };
 }
 
-// This decorator factory hooks into the DOM and inserts some content.
+// This decorator factory hooks into the DOM and inserts some content. The decorator function returns a new class with custom logic that preserves the prototype of the the original class. However, that class must have a name member, as is specified in the generic type assignment.
 function WithTemplate(template: string, hookId: string) {
-  console.log("I execute second!");
-  return function (constructor: new () => Person) {
-    console.log("WithTemplate decorator function here!");
-    const hookEl = document.getElementById(hookId);
-    const person = new constructor();
-    if (hookEl) {
-      hookEl.innerHTML = template;
-      hookEl.querySelector("h1")!.textContent = person.name;
-    }
+  console.log("Template Factory: I execute second!");
+  return function <T extends { new (...args: any[]): { name: string } }>(
+    originalConstructor: T
+  ) {
+    return class extends originalConstructor {
+      constructor(..._: any[]) {
+        super();
+        console.log("WithTemplate decorator function here!");
+        const hookEl = document.getElementById(hookId);
+        if (hookEl) {
+          hookEl.innerHTML = template;
+          hookEl.querySelector("h1")!.textContent = this.name;
+        }
+      }
+    };
   };
 }
 
@@ -33,7 +39,9 @@ function WithTemplate(template: string, hookId: string) {
 @Logger("Logging: person")
 @WithTemplate("<h1>Test</h1>", "output-container")
 class Person {
-  constructor(public name = "Steven") {
+  name = "Steven";
+
+  constructor() {
     console.log("Create a person object");
   }
 }
