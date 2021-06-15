@@ -156,3 +156,81 @@ const button = document.querySelector("button")!;
 // button.addEventListener("click", printer.showMessage.bind(printer)); // Works
 
 button.addEventListener("click", printer.showMessage); // Works because of the Autobind decorator that takes the original method and modifies it to return a bound function.
+
+//************* Validation with Decorators */
+
+// Problem: Type-checking in 'submit' event listener is extra code. Better if the validation could apply to the class itself. Enter: decorators.
+
+// Define an interface for the registeredValidators object, in which props that require validation will be registered, as well as an array with the validation types required for each.
+
+interface ValidatorConfig {
+  [property: string]: {
+    // The name of the class
+    [validateableProp: string]: string[]; // The name of the property
+  };
+}
+
+const registeredValidators: ValidatorConfig = {};
+
+function Required(target: any, propertyKey: string) {
+  registeredValidators[target.constructor.name] = {
+    ...registeredValidators[target.constructor.name],
+    [propertyKey]: ["required"],
+  };
+}
+
+function PositiveNumber(target: any, propertyKey: string) {
+  registeredValidators[target.constructor.name] = {
+    ...registeredValidators[target.constructor.name],
+    [propertyKey]: ["positive"],
+  };
+}
+
+function validate(obj: any) {
+  const objectValidationConfig = registeredValidators[obj.constructor.name];
+  if (!objectValidationConfig) return true;
+
+  let isValid = true;
+  for (const prop in objectValidationConfig) {
+    for (const validator of objectValidationConfig[prop]) {
+      switch (validator) {
+        case "required":
+          isValid = isValid && obj[prop];
+          break;
+        case "positive":
+          isValid = isValid && obj[prop] > 0;
+          break;
+      }
+    }
+  }
+  return isValid;
+}
+
+class Course {
+  @Required public title: string;
+  @PositiveNumber public price: number;
+
+  constructor(t: string, p: number) {
+    this.title = t;
+    this.price = p;
+  }
+}
+
+const form = document.querySelector("form")!;
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const titleEl = document.getElementById("title") as HTMLInputElement;
+  const priceEl = document.getElementById("price") as HTMLInputElement;
+
+  const title = titleEl.value;
+  const price = +priceEl.value;
+
+  const course = new Course(title, price);
+
+  if (!validate(course)) {
+    alert("Invalid input. Please try again!");
+    return;
+  } else {
+    alert("Success");
+  }
+});
