@@ -175,14 +175,20 @@ const registeredValidators: ValidatorConfig = {};
 function Required(target: any, propertyKey: string) {
   registeredValidators[target.constructor.name] = {
     ...registeredValidators[target.constructor.name],
-    [propertyKey]: ["required"],
+    [propertyKey]: [
+      ...registeredValidators[target.constructor.name][propertyKey],
+      "required",
+    ],
   };
 }
 
 function PositiveNumber(target: any, propertyKey: string) {
   registeredValidators[target.constructor.name] = {
     ...registeredValidators[target.constructor.name],
-    [propertyKey]: ["positive"],
+    [propertyKey]: [
+      ...registeredValidators[target.constructor.name][propertyKey],
+      "positive",
+    ],
   };
 }
 

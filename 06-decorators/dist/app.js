@@ -119,10 +119,16 @@ const button = document.querySelector("button");
 button.addEventListener("click", printer.showMessage);
 const registeredValidators = {};
 function Required(target, propertyKey) {
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: ["required"] });
+    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: [
+            ...registeredValidators[target.constructor.name][propertyKey],
+            "required",
+        ] });
 }
 function PositiveNumber(target, propertyKey) {
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: ["positive"] });
+    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: [
+            ...registeredValidators[target.constructor.name][propertyKey],
+            "positive",
+        ] });
 }
 function validate(obj) {
     const objectValidationConfig = registeredValidators[obj.constructor.name];
