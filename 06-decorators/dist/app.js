@@ -35,3 +35,29 @@ Person = __decorate([
     WithTemplate("<h1>Test</h1>", "output-container")
 ], Person);
 const person = new Person();
+function Log(target, propertyName) {
+    console.log("@Log decorator executing");
+    console.log({ target, propertyName });
+}
+class Product {
+    constructor(name, price) {
+        this.name = name;
+        this._price = price;
+    }
+    set price(val) {
+        if (val > 0) {
+            this._price = val;
+        }
+        else {
+            throw new Error("Price must be a positive number!");
+        }
+    }
+    getTaxInclusivePrice(rate) {
+        return this._price * rate;
+    }
+}
+__decorate([
+    Log
+], Product.prototype, "name", void 0);
+const product = new Product("Fish bowl", 50);
+console.log(product.getTaxInclusivePrice(1.09));

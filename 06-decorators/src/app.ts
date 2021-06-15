@@ -39,3 +39,36 @@ class Person {
 }
 
 const person = new Person();
+
+// ------
+
+function Log(target: any, propertyName: string | Symbol) {
+  console.log("@Log decorator executing");
+  console.log({ target, propertyName });
+}
+
+class Product {
+  @Log
+  public name: string;
+  private _price: number;
+
+  set price(val: number) {
+    if (val > 0) {
+      this._price = val;
+    } else {
+      throw new Error("Price must be a positive number!");
+    }
+  }
+
+  constructor(name: string, price: number) {
+    this.name = name;
+    this._price = price;
+  }
+
+  getTaxInclusivePrice(rate: number) {
+    return this._price * rate;
+  }
+}
+
+const product = new Product("Fish bowl", 50);
+console.log(product.getTaxInclusivePrice(1.09));
