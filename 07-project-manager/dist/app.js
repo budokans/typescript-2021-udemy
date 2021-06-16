@@ -17,6 +17,26 @@ function Autobind(_, _2, descriptor) {
     };
     return newDescriptor;
 }
+function validate(validatableInput) {
+    const inputValue = validatableInput.value;
+    let isValid = true;
+    if (validatableInput.required) {
+        isValid = isValid && inputValue.toString().trim().length > 0;
+    }
+    if (validatableInput.minLength != null && typeof inputValue === "string") {
+        isValid = isValid && inputValue.length > validatableInput.minLength;
+    }
+    if (validatableInput.maxLength != null && typeof inputValue === "string") {
+        isValid = isValid && inputValue.length < validatableInput.maxLength;
+    }
+    if (validatableInput.min != null && typeof inputValue === "number") {
+        isValid = isValid && inputValue >= validatableInput.min;
+    }
+    if (validatableInput.max != null && typeof inputValue === "number") {
+        isValid = isValid && inputValue <= validatableInput.max;
+    }
+    return isValid;
+}
 class Form {
     constructor() {
         this.templateElement = document.getElementById("project-input");
@@ -34,9 +54,24 @@ class Form {
         const enteredTitle = this.titleInput.value;
         const enteredDescription = this.descriptionInput.value;
         const enteredPeople = this.peopleInput.value;
-        if (enteredTitle.trim().length === 0 ||
-            enteredDescription.trim().length === 0 ||
-            enteredPeople.trim().length === 0) {
+        const validatableTitle = {
+            value: enteredTitle,
+            required: true,
+        };
+        const validatableDescription = {
+            value: enteredDescription,
+            required: true,
+            minLength: 1,
+        };
+        const validatablePeople = {
+            value: enteredPeople,
+            required: true,
+            min: 1,
+            max: 10,
+        };
+        if (!validate(validatableTitle) ||
+            !validate(validatableDescription) ||
+            !validate(validatablePeople)) {
             alert("Please fill out all the form fields!");
             return;
         }
@@ -52,7 +87,8 @@ class Form {
     submitHandler(event) {
         event.preventDefault();
         const userInput = this.gatherUserInput();
-        console.log(userInput);
+        if (userInput)
+            console.log(userInput);
         this.clearInputs();
     }
     configure() {

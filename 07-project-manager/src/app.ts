@@ -13,6 +13,37 @@ function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return newDescriptor;
 }
 
+interface Validatable {
+  value: string | number;
+  required?: Boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatableInput: Validatable) {
+  const inputValue = validatableInput.value;
+  let isValid = true;
+
+  if (validatableInput.required) {
+    isValid = isValid && inputValue.toString().trim().length > 0;
+  }
+  if (validatableInput.minLength != null && typeof inputValue === "string") {
+    isValid = isValid && inputValue.length > validatableInput.minLength;
+  }
+  if (validatableInput.maxLength != null && typeof inputValue === "string") {
+    isValid = isValid && inputValue.length < validatableInput.maxLength;
+  }
+  if (validatableInput.min != null && typeof inputValue === "number") {
+    isValid = isValid && inputValue >= validatableInput.min;
+  }
+  if (validatableInput.max != null && typeof inputValue === "number") {
+    isValid = isValid && inputValue <= validatableInput.max;
+  }
+  return isValid;
+}
+
 class Form {
   private templateElement: HTMLTemplateElement;
   private targetElement: HTMLDivElement;
@@ -54,10 +85,28 @@ class Form {
     const enteredDescription = this.descriptionInput.value;
     const enteredPeople = this.peopleInput.value;
 
+    const validatableTitle: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+
+    const validatableDescription: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 1,
+    };
+
+    const validatablePeople: Validatable = {
+      value: enteredPeople,
+      required: true,
+      min: 1,
+      max: 10,
+    };
+
     if (
-      enteredTitle.trim().length === 0 ||
-      enteredDescription.trim().length === 0 ||
-      enteredPeople.trim().length === 0
+      !validate(validatableTitle) ||
+      !validate(validatableDescription) ||
+      !validate(validatablePeople)
     ) {
       alert("Please fill out all the form fields!");
       return;
@@ -75,7 +124,7 @@ class Form {
   @Autobind private submitHandler(event: Event) {
     event.preventDefault();
     const userInput = this.gatherUserInput();
-    console.log(userInput);
+    if (userInput) console.log(userInput);
     this.clearInputs();
   }
 
