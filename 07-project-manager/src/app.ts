@@ -124,8 +124,11 @@ class Form {
   @Autobind private submitHandler(event: Event) {
     event.preventDefault();
     const userInput = this.gatherUserInput();
-    if (userInput) console.log(userInput);
-    this.clearInputs();
+    if (Array.isArray(userInput) && userInput.length === 3) {
+      const [title, description, people] = userInput;
+      console.log({ title, description, people });
+      this.clearInputs();
+    }
   }
 
   private configure() {

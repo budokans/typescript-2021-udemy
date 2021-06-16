@@ -87,9 +87,11 @@ class Form {
     submitHandler(event) {
         event.preventDefault();
         const userInput = this.gatherUserInput();
-        if (userInput)
-            console.log(userInput);
-        this.clearInputs();
+        if (Array.isArray(userInput) && userInput.length === 3) {
+            const [title, description, people] = userInput;
+            console.log({ title, description, people });
+            this.clearInputs();
+        }
     }
     configure() {
         this.formElement.addEventListener("submit", this.submitHandler);
