@@ -44,6 +44,43 @@ function validate(validatableInput: Validatable) {
   return isValid;
 }
 
+class ProjectList {
+  private templateElement: HTMLTemplateElement;
+  private targetElement: HTMLDivElement;
+  private sectionElement: HTMLElement;
+
+  constructor(private projectStatus: "active" | "finished") {
+    this.templateElement = document.getElementById(
+      "project-list"
+    ) as HTMLTemplateElement;
+    this.targetElement = document.getElementById("app") as HTMLDivElement;
+
+    const importedNode = document.importNode(
+      this.templateElement.content,
+      true
+    );
+
+    this.sectionElement = importedNode.firstElementChild as HTMLElement;
+
+    this.attach();
+    this.renderContent();
+  }
+
+  private renderContent() {
+    this.sectionElement.id = `${this.projectStatus}-projects`;
+
+    const listId = `${this.projectStatus}-projects-list`;
+    this.sectionElement.querySelector("ul")!.id = listId;
+
+    const headingContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
+    this.sectionElement.querySelector("h2")!.textContent = headingContent;
+  }
+
+  private attach() {
+    this.targetElement.insertAdjacentElement("beforeend", this.sectionElement);
+  }
+}
+
 class Form {
   private templateElement: HTMLTemplateElement;
   private targetElement: HTMLDivElement;
@@ -141,3 +178,5 @@ class Form {
 }
 
 const form = new Form();
+const projListActive = new ProjectList("active");
+const projListComplete = new ProjectList("finished");

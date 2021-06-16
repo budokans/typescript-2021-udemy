@@ -37,6 +37,27 @@ function validate(validatableInput) {
     }
     return isValid;
 }
+class ProjectList {
+    constructor(projectStatus) {
+        this.projectStatus = projectStatus;
+        this.templateElement = document.getElementById("project-list");
+        this.targetElement = document.getElementById("app");
+        const importedNode = document.importNode(this.templateElement.content, true);
+        this.sectionElement = importedNode.firstElementChild;
+        this.attach();
+        this.renderContent();
+    }
+    renderContent() {
+        this.sectionElement.id = `${this.projectStatus}-projects`;
+        const listId = `${this.projectStatus}-projects-list`;
+        this.sectionElement.querySelector("ul").id = listId;
+        const headingContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
+        this.sectionElement.querySelector("h2").textContent = headingContent;
+    }
+    attach() {
+        this.targetElement.insertAdjacentElement("beforeend", this.sectionElement);
+    }
+}
 class Form {
     constructor() {
         this.templateElement = document.getElementById("project-input");
@@ -104,3 +125,5 @@ __decorate([
     Autobind
 ], Form.prototype, "submitHandler", null);
 const form = new Form();
+const projListActive = new ProjectList("active");
+const projListComplete = new ProjectList("finished");
