@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 function Autobind(_, _2, descriptor) {
     const originalMethod = descriptor.value;
-    const adjustedDescriptor = {
+    const newDescriptor = {
         enumerable: false,
         configurable: true,
         get() {
@@ -15,7 +15,7 @@ function Autobind(_, _2, descriptor) {
             return boundFunc;
         },
     };
-    return adjustedDescriptor;
+    return newDescriptor;
 }
 class Form {
     constructor() {
@@ -25,12 +25,35 @@ class Form {
         this.formElement = importedNode.firstElementChild;
         this.formElement.id = "user-input";
         this.titleInput = this.formElement.querySelector("#title");
+        this.descriptionInput = this.formElement.querySelector("#description");
+        this.peopleInput = this.formElement.querySelector("#people");
         this.configure();
         this.attach();
     }
+    gatherUserInput() {
+        const enteredTitle = this.titleInput.value;
+        const enteredDescription = this.descriptionInput.value;
+        const enteredPeople = this.peopleInput.value;
+        if (enteredTitle.trim().length === 0 ||
+            enteredDescription.trim().length === 0 ||
+            enteredPeople.trim().length === 0) {
+            alert("Please fill out all the form fields!");
+            return;
+        }
+        else {
+            return [enteredTitle, enteredDescription, +enteredPeople];
+        }
+    }
+    clearInputs() {
+        this.titleInput.value = "";
+        this.descriptionInput.value = "";
+        this.peopleInput.value = "";
+    }
     submitHandler(event) {
         event.preventDefault();
-        console.log(this.titleInput.value);
+        const userInput = this.gatherUserInput();
+        console.log(userInput);
+        this.clearInputs();
     }
     configure() {
         this.formElement.addEventListener("submit", this.submitHandler);

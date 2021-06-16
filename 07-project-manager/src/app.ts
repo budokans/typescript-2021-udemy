@@ -49,9 +49,34 @@ class Form {
     this.attach();
   }
 
+  private gatherUserInput(): [string, string, number] | void {
+    const enteredTitle = this.titleInput.value;
+    const enteredDescription = this.descriptionInput.value;
+    const enteredPeople = this.peopleInput.value;
+
+    if (
+      enteredTitle.trim().length === 0 ||
+      enteredDescription.trim().length === 0 ||
+      enteredPeople.trim().length === 0
+    ) {
+      alert("Please fill out all the form fields!");
+      return;
+    } else {
+      return [enteredTitle, enteredDescription, +enteredPeople];
+    }
+  }
+
+  private clearInputs() {
+    this.titleInput.value = "";
+    this.descriptionInput.value = "";
+    this.peopleInput.value = "";
+  }
+
   @Autobind private submitHandler(event: Event) {
     event.preventDefault();
-    console.log(this.titleInput.value);
+    const userInput = this.gatherUserInput();
+    console.log(userInput);
+    this.clearInputs();
   }
 
   private configure() {
