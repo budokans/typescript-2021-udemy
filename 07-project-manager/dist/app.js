@@ -5,18 +5,28 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-function Autobind(_, _2, descriptor) {
-    const originalMethod = descriptor.value;
-    const newDescriptor = {
-        enumerable: false,
-        configurable: true,
-        get() {
-            const boundFunc = originalMethod.bind(this);
-            return boundFunc;
-        },
-    };
-    return newDescriptor;
+class ProjectState {
+    constructor() {
+        this.projects = [];
+    }
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new ProjectState();
+        }
+        return this.instance;
+    }
+    addProject(title, description, numOfPeople) {
+        const id = Math.random().toString();
+        const project = {
+            id,
+            title,
+            description,
+            people: numOfPeople,
+        };
+        this.projects.push(project);
+    }
 }
+const projectStateManager = ProjectState.getInstance();
 function validate(validatableInput) {
     const inputValue = validatableInput.value;
     let isValid = true;
@@ -36,6 +46,18 @@ function validate(validatableInput) {
         isValid = isValid && inputValue <= validatableInput.max;
     }
     return isValid;
+}
+function Autobind(_, _2, descriptor) {
+    const originalMethod = descriptor.value;
+    const newDescriptor = {
+        enumerable: false,
+        configurable: true,
+        get() {
+            const boundFunc = originalMethod.bind(this);
+            return boundFunc;
+        },
+    };
+    return newDescriptor;
 }
 class ProjectList {
     constructor(projectStatus) {
@@ -110,7 +132,7 @@ class Form {
         const userInput = this.gatherUserInput();
         if (Array.isArray(userInput) && userInput.length === 3) {
             const [title, description, people] = userInput;
-            console.log({ title, description, people });
+            projectStateManager.addProject(title, description, people);
             this.clearInputs();
         }
     }

@@ -1,18 +1,33 @@
-// Create a Form class that will get the content in the template and render it to the DOM on instantiation.
+// State Management
 
-function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
-  const originalMethod = descriptor.value;
-  const newDescriptor = {
-    enumerable: false,
-    configurable: true,
-    get() {
-      const boundFunc = originalMethod.bind(this);
-      return boundFunc;
-    },
-  };
-  return newDescriptor;
+class ProjectState {
+  private projects: any[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {}
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new ProjectState();
+    }
+    return this.instance;
+  }
+
+  addProject(title: string, description: string, numOfPeople: number) {
+    const id = Math.random().toString();
+    const project = {
+      id,
+      title,
+      description,
+      people: numOfPeople,
+    };
+    this.projects.push(project);
+  }
 }
 
+const projectStateManager = ProjectState.getInstance();
+
+// Validation
 interface Validatable {
   value: string | number;
   required?: Boolean;
@@ -42,6 +57,20 @@ function validate(validatableInput: Validatable) {
     isValid = isValid && inputValue <= validatableInput.max;
   }
   return isValid;
+}
+
+// Utilities
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const newDescriptor = {
+    enumerable: false,
+    configurable: true,
+    get() {
+      const boundFunc = originalMethod.bind(this);
+      return boundFunc;
+    },
+  };
+  return newDescriptor;
 }
 
 class ProjectList {
@@ -163,7 +192,7 @@ class Form {
     const userInput = this.gatherUserInput();
     if (Array.isArray(userInput) && userInput.length === 3) {
       const [title, description, people] = userInput;
-      console.log({ title, description, people });
+      projectStateManager.addProject(title, description, people);
       this.clearInputs();
     }
   }
