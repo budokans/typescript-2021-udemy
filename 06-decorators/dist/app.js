@@ -118,37 +118,60 @@ const printer = new Printer();
 const button = document.querySelector("button");
 button.addEventListener("click", printer.showMessage);
 const registeredValidators = {};
-function Required(target, propertyKey) {
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: [
-            ...registeredValidators[target.constructor.name][propertyKey],
-            "required",
-        ] });
-}
-function PositiveNumber(target, propertyKey) {
-    registeredValidators[target.constructor.name] = Object.assign(Object.assign({}, registeredValidators[target.constructor.name]), { [propertyKey]: [
-            ...registeredValidators[target.constructor.name][propertyKey],
-            "positive",
-        ] });
-}
-function validate(obj) {
-    const objectValidationConfig = registeredValidators[obj.constructor.name];
-    if (!objectValidationConfig)
+const addValidator = (validateableObjectType, validateableMember, validator) => {
+    if (!registeredValidators[validateableObjectType]) {
+        registeredValidators[validateableObjectType] = {
+            [validateableMember]: [validator],
+        };
+    }
+    else {
+        if (!registeredValidators[validateableObjectType][validateableMember]) {
+            registeredValidators[validateableObjectType][validateableMember] = [
+                validator,
+            ];
+        }
+        else {
+            registeredValidators[validateableObjectType][validateableMember] = [
+                ...registeredValidators[validateableObjectType][validateableMember],
+                validator,
+            ];
+        }
+    }
+};
+const Required = (target, validateableMemberKey) => {
+    const validateableObjectType = target.constructor.name;
+    addValidator(validateableObjectType, validateableMemberKey, "required");
+};
+const PositiveNumber = (target, validateableMemberKey) => {
+    const validateableObjectType = target.constructor.name;
+    addValidator(validateableObjectType, validateableMemberKey, "positive");
+};
+const MaxLength = (target, validateableMemberKey) => {
+    const validateableObjectType = target.constructor.name;
+    addValidator(validateableObjectType, validateableMemberKey, "max-length");
+};
+const validate = (obj) => {
+    const objValidationConfig = registeredValidators[obj.constructor.name];
+    if (!objValidationConfig)
         return true;
     let isValid = true;
-    for (const prop in objectValidationConfig) {
-        for (const validator of objectValidationConfig[prop]) {
+    for (const member in objValidationConfig) {
+        for (const validator of objValidationConfig[member]) {
             switch (validator) {
                 case "required":
-                    isValid = isValid && obj[prop];
+                    isValid = isValid && !!obj[member];
                     break;
                 case "positive":
-                    isValid = isValid && obj[prop] > 0;
+                    isValid = isValid && obj[member] > 0;
+                    break;
+                case "max-length":
+                    isValid = isValid && obj[member].length <= 10;
                     break;
             }
         }
     }
     return isValid;
-}
+};
 class Course {
     constructor(t, p) {
         this.title = t;
@@ -156,7 +179,7 @@ class Course {
     }
 }
 __decorate([
-    Required
+    Required, MaxLength
 ], Course.prototype, "title", void 0);
 __decorate([
     PositiveNumber

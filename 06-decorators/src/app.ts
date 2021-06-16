@@ -159,61 +159,85 @@ button.addEventListener("click", printer.showMessage); // Works because of the A
 
 //************* Validation with Decorators */
 
-// Problem: Type-checking in 'submit' event listener is extra code. Better if the validation could apply to the class itself. Enter: decorators.
+// Problem: Type-checking in every 'submit' event listener for every potential type of object is extra code. Better if the validation logic could be reusable for any given class. Enter: decorators.
 
 // Define an interface for the registeredValidators object, in which props that require validation will be registered, as well as an array with the validation types required for each.
 
-interface ValidatorConfig {
-  [property: string]: {
-    // The name of the class
-    [validateableProp: string]: string[]; // The name of the property
-  };
+interface ValidatorRegistry {
+  [className: string]: { [validateableMember: string]: string[] };
 }
 
-const registeredValidators: ValidatorConfig = {};
+const registeredValidators: ValidatorRegistry = {};
 
-function Required(target: any, propertyKey: string) {
-  registeredValidators[target.constructor.name] = {
-    ...registeredValidators[target.constructor.name],
-    [propertyKey]: [
-      ...registeredValidators[target.constructor.name][propertyKey],
-      "required",
-    ],
-  };
-}
+const addValidator = (
+  validateableObjectType: string,
+  validateableMember: string,
+  validator: string
+) => {
+  if (!registeredValidators[validateableObjectType]) {
+    registeredValidators[validateableObjectType] = {
+      [validateableMember]: [validator],
+    };
+  } else {
+    if (!registeredValidators[validateableObjectType][validateableMember]) {
+      registeredValidators[validateableObjectType][validateableMember] = [
+        validator,
+      ];
+    } else {
+      registeredValidators[validateableObjectType][validateableMember] = [
+        ...registeredValidators[validateableObjectType][validateableMember],
+        validator,
+      ];
+    }
+  }
+};
 
-function PositiveNumber(target: any, propertyKey: string) {
-  registeredValidators[target.constructor.name] = {
-    ...registeredValidators[target.constructor.name],
-    [propertyKey]: [
-      ...registeredValidators[target.constructor.name][propertyKey],
-      "positive",
-    ],
-  };
-}
+const Required = (target: any, validateableMemberKey: string) => {
+  const validateableObjectType = target.constructor.name;
+  addValidator(validateableObjectType, validateableMemberKey, "required");
+};
 
-function validate(obj: any) {
-  const objectValidationConfig = registeredValidators[obj.constructor.name];
-  if (!objectValidationConfig) return true;
+const PositiveNumber = (target: any, validateableMemberKey: string) => {
+  const validateableObjectType = target.constructor.name;
+  addValidator(validateableObjectType, validateableMemberKey, "positive");
+};
+
+const MaxLength = (target: any, validateableMemberKey: string) => {
+  const validateableObjectType = target.constructor.name;
+  addValidator(validateableObjectType, validateableMemberKey, "max-length");
+};
+
+const validate = (obj: any) => {
+  // For this object, check the registeredValidators to see if its className is present and therefore there is a configuration object. Return true if not.
+  // Iterate over the class members that need validating and for each validator, update isValid to false if validation fails.
+  // Return isValid
+  const objValidationConfig = registeredValidators[obj.constructor.name];
+  if (!objValidationConfig) return true;
 
   let isValid = true;
-  for (const prop in objectValidationConfig) {
-    for (const validator of objectValidationConfig[prop]) {
+
+  for (const member in objValidationConfig) {
+    for (const validator of objValidationConfig[member]) {
       switch (validator) {
         case "required":
-          isValid = isValid && obj[prop];
+          isValid = isValid && !!obj[member];
           break;
+
         case "positive":
-          isValid = isValid && obj[prop] > 0;
+          isValid = isValid && obj[member] > 0;
+          break;
+
+        case "max-length":
+          isValid = isValid && obj[member].length <= 10;
           break;
       }
     }
   }
   return isValid;
-}
+};
 
 class Course {
-  @Required public title: string;
+  @Required @MaxLength public title: string;
   @PositiveNumber public price: number;
 
   constructor(t: string, p: number) {
