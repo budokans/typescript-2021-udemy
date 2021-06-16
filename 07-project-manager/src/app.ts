@@ -1,5 +1,18 @@
 // Create a Form class that will get the content in the template and render it to the DOM on instantiation.
 
+function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+  const newDescriptor = {
+    enumerable: false,
+    configurable: true,
+    get() {
+      const boundFunc = originalMethod.bind(this);
+      return boundFunc;
+    },
+  };
+  return newDescriptor;
+}
+
 class Form {
   private templateElement: HTMLTemplateElement;
   private targetElement: HTMLDivElement;
@@ -36,13 +49,13 @@ class Form {
     this.attach();
   }
 
-  private submitHandler(event: Event) {
+  @Autobind private submitHandler(event: Event) {
     event.preventDefault();
     console.log(this.titleInput.value);
   }
 
   private configure() {
-    this.formElement.addEventListener("submit", this.submitHandler.bind(this));
+    this.formElement.addEventListener("submit", this.submitHandler);
   }
 
   private attach() {
