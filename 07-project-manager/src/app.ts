@@ -17,6 +17,8 @@ class Project {
 
 type Listener<T> = (items: T[]) => void;
 
+// State Management
+
 class State<T> {
   protected listeners: Listener<T>[] = [];
 
@@ -24,8 +26,6 @@ class State<T> {
     this.listeners.push(newListener);
   }
 }
-
-// State Management
 
 class ProjectState extends State<Project> {
   private projects: Project[] = [];
@@ -149,12 +149,35 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+
+  constructor(destinationId: string, project: Project) {
+    super("single-project", destinationId, true, project.id);
+    this.project = project;
+
+    this.renderContent();
+  }
+
+  configure() {}
+  renderContent() {
+    this.destinationElement.querySelector("h2")!.textContent =
+      this.project.title;
+    this.destinationElement.querySelector("h3")!.textContent =
+      this.project.people.toString();
+    this.destinationElement.querySelector("p")!.textContent =
+      this.project.description;
+  }
+}
+
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   private assignedProjects: Project[];
+  private listId: string;
 
   constructor(private listCategory: "active" | "finished") {
     super("project-list", "app", false, `${listCategory}-projects`);
     this.assignedProjects = [];
+    this.listId = `${this.listCategory}-projects-list`;
     this.configure();
     this.renderContent();
   }
@@ -174,9 +197,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   }
 
   renderContent() {
-    const listId = `${this.listCategory}-projects-list`;
-    this.templateChildElement.querySelector("ul")!.id = listId;
-
+    this.templateChildElement.querySelector("ul")!.id = this.listId;
     const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
     this.templateChildElement.querySelector("h2")!.textContent = headingContent;
   }
@@ -188,9 +209,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     projectsUl.innerHTML = "";
 
     for (const project of this.assignedProjects) {
-      const listEl = document.createElement("li");
-      listEl.textContent = project.title;
-      projectsUl.appendChild(listEl);
+      new ProjectItem(this.listId, project);
     }
   }
 }

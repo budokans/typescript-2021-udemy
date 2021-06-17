@@ -95,11 +95,28 @@ class Component {
         this.destinationElement.insertAdjacentElement(insertAtBeginning ? "afterbegin" : "beforeend", this.templateChildElement);
     }
 }
+class ProjectItem extends Component {
+    constructor(destinationId, project) {
+        super("single-project", destinationId, true, project.id);
+        this.project = project;
+        this.renderContent();
+    }
+    configure() { }
+    renderContent() {
+        this.destinationElement.querySelector("h2").textContent =
+            this.project.title;
+        this.destinationElement.querySelector("h3").textContent =
+            this.project.people.toString();
+        this.destinationElement.querySelector("p").textContent =
+            this.project.description;
+    }
+}
 class ProjectList extends Component {
     constructor(listCategory) {
         super("project-list", "app", false, `${listCategory}-projects`);
         this.listCategory = listCategory;
         this.assignedProjects = [];
+        this.listId = `${this.listCategory}-projects-list`;
         this.configure();
         this.renderContent();
     }
@@ -118,8 +135,7 @@ class ProjectList extends Component {
         });
     }
     renderContent() {
-        const listId = `${this.listCategory}-projects-list`;
-        this.templateChildElement.querySelector("ul").id = listId;
+        this.templateChildElement.querySelector("ul").id = this.listId;
         const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
         this.templateChildElement.querySelector("h2").textContent = headingContent;
     }
@@ -127,9 +143,7 @@ class ProjectList extends Component {
         const projectsUl = document.getElementById(`${this.listCategory}-projects-list`);
         projectsUl.innerHTML = "";
         for (const project of this.assignedProjects) {
-            const listEl = document.createElement("li");
-            listEl.textContent = project.title;
-            projectsUl.appendChild(listEl);
+            new ProjectItem(this.listId, project);
         }
     }
 }
