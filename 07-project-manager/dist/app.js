@@ -99,6 +99,7 @@ class ProjectItem extends Component {
     constructor(destinationId, project) {
         super("single-project", destinationId, true, project.id);
         this.project = project;
+        this.configure();
         this.renderContent();
     }
     get contributors() {
@@ -107,7 +108,16 @@ class ProjectItem extends Component {
         }
         return "1 contributor.";
     }
-    configure() { }
+    dragStartHandler(event) {
+        console.log(event);
+    }
+    dragEndHandler(_) {
+        console.log("End");
+    }
+    configure() {
+        this.templateChildElement.addEventListener("dragstart", this.dragStartHandler);
+        this.templateChildElement.addEventListener("dragend", this.dragEndHandler);
+    }
     renderContent() {
         this.destinationElement.querySelector("h2").textContent =
             this.project.title;
@@ -117,6 +127,12 @@ class ProjectItem extends Component {
             this.project.description;
     }
 }
+__decorate([
+    Autobind
+], ProjectItem.prototype, "dragStartHandler", null);
+__decorate([
+    Autobind
+], ProjectItem.prototype, "dragEndHandler", null);
 class ProjectList extends Component {
     constructor(listCategory) {
         super("project-list", "app", false, `${listCategory}-projects`);
