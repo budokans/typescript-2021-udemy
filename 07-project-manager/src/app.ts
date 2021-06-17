@@ -142,6 +142,7 @@ class ProjectList {
     const projectsUl = document.getElementById(
       `${this.listCategory}-projects-list`
     ) as HTMLUListElement;
+    projectsUl.innerHTML = "";
     for (const project of this.assignedProjects) {
       const listEl = document.createElement("li");
       listEl.textContent = project.title;

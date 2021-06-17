@@ -100,6 +100,7 @@ class ProjectList {
     }
     renderProjects() {
         const projectsUl = document.getElementById(`${this.listCategory}-projects-list`);
+        projectsUl.innerHTML = "";
         for (const project of this.assignedProjects) {
             const listEl = document.createElement("li");
             listEl.textContent = project.title;
