@@ -8,12 +8,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 class ProjectState {
     constructor() {
         this.projects = [];
+        this.listeners = [];
     }
     static getInstance() {
         if (!this.instance) {
             this.instance = new ProjectState();
         }
         return this.instance;
+    }
+    addListener(newListener) {
+        this.listeners.push(newListener);
     }
     addProject(title, description, numOfPeople) {
         const id = Math.random().toString();
@@ -24,6 +28,9 @@ class ProjectState {
             people: numOfPeople,
         };
         this.projects.push(project);
+        for (const listener of this.listeners) {
+            listener(this.projects.slice());
+        }
     }
 }
 const projectStateManager = ProjectState.getInstance();
@@ -66,8 +73,21 @@ class ProjectList {
         this.targetElement = document.getElementById("app");
         const importedNode = document.importNode(this.templateElement.content, true);
         this.sectionElement = importedNode.firstElementChild;
+        this.assignedProjects = [];
+        projectStateManager.addListener((projects) => {
+            this.assignedProjects = projects;
+            this.renderProjects();
+        });
         this.attach();
         this.renderContent();
+    }
+    renderProjects() {
+        const projectsUl = document.getElementById(`${this.projectStatus}-projects-list`);
+        for (const project of this.assignedProjects) {
+            const listEl = document.createElement("li");
+            listEl.textContent = project.title;
+            projectsUl.appendChild(listEl);
+        }
     }
     renderContent() {
         this.sectionElement.id = `${this.projectStatus}-projects`;

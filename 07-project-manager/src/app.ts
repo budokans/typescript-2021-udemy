@@ -2,6 +2,7 @@
 
 class ProjectState {
   private projects: any[] = [];
+  private listeners: any[] = [];
   private static instance: ProjectState;
 
   private constructor() {}
@@ -13,6 +14,10 @@ class ProjectState {
     return this.instance;
   }
 
+  addListener(newListener: Function) {
+    this.listeners.push(newListener);
+  }
+
   addProject(title: string, description: string, numOfPeople: number) {
     const id = Math.random().toString();
     const project = {
@@ -22,6 +27,10 @@ class ProjectState {
       people: numOfPeople,
     };
     this.projects.push(project);
+
+    for (const listener of this.listeners) {
+      listener(this.projects.slice());
+    }
   }
 }
 
@@ -77,6 +86,7 @@ class ProjectList {
   private templateElement: HTMLTemplateElement;
   private targetElement: HTMLDivElement;
   private sectionElement: HTMLElement;
+  private assignedProjects: any[];
 
   constructor(private projectStatus: "active" | "finished") {
     this.templateElement = document.getElementById(
@@ -90,9 +100,26 @@ class ProjectList {
     );
 
     this.sectionElement = importedNode.firstElementChild as HTMLElement;
+    this.assignedProjects = [];
+
+    projectStateManager.addListener((projects: any[]) => {
+      this.assignedProjects = projects;
+      this.renderProjects();
+    });
 
     this.attach();
     this.renderContent();
+  }
+
+  private renderProjects() {
+    const projectsUl = document.getElementById(
+      `${this.projectStatus}-projects-list`
+    ) as HTMLUListElement;
+    for (const project of this.assignedProjects) {
+      const listEl = document.createElement("li");
+      listEl.textContent = project.title;
+      projectsUl.appendChild(listEl);
+    }
   }
 
   private renderContent() {
