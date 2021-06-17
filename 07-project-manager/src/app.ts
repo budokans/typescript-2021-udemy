@@ -15,11 +15,13 @@ class Project {
   ) {}
 }
 
+type Listener = (projects: Project[]) => void;
+
 // State Management
 
 class ProjectState {
   private projects: Project[] = [];
-  private listeners: any[] = [];
+  private listeners: Listener[] = [];
   private static instance: ProjectState;
 
   private constructor() {}
@@ -31,7 +33,7 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(newListener: Function) {
+  addListener(newListener: Listener) {
     this.listeners.push(newListener);
   }
 
