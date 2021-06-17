@@ -112,6 +112,12 @@ class ProjectList extends Component {
             this.renderProjects();
         });
     }
+    renderContent() {
+        const listId = `${this.listCategory}-projects-list`;
+        this.templateChildElement.querySelector("ul").id = listId;
+        const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
+        this.templateChildElement.querySelector("h2").textContent = headingContent;
+    }
     renderProjects() {
         const projectsUl = document.getElementById(`${this.listCategory}-projects-list`);
         projectsUl.innerHTML = "";
@@ -121,27 +127,19 @@ class ProjectList extends Component {
             projectsUl.appendChild(listEl);
         }
     }
-    renderContent() {
-        const listId = `${this.listCategory}-projects-list`;
-        this.templateChildElement.querySelector("ul").id = listId;
-        const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
-        this.templateChildElement.querySelector("h2").textContent = headingContent;
-    }
 }
-class Form {
+class Form extends Component {
     constructor() {
-        this.templateElement = document.getElementById("project-input");
-        this.destinationElement = document.getElementById("app");
-        const importedNode = document.importNode(this.templateElement.content, true);
-        this.templateChildElement =
-            importedNode.firstElementChild;
-        this.templateChildElement.id = "user-input";
+        super("project-input", "app", true, "user-input");
         this.titleInput = this.templateChildElement.querySelector("#title");
         this.descriptionInput = this.templateChildElement.querySelector("#description");
         this.peopleInput = this.templateChildElement.querySelector("#people");
         this.configure();
-        this.attach();
     }
+    configure() {
+        this.templateChildElement.addEventListener("submit", this.submitHandler);
+    }
+    renderContent() { }
     gatherUserInput() {
         const enteredTitle = this.titleInput.value;
         const enteredDescription = this.descriptionInput.value;
@@ -184,12 +182,6 @@ class Form {
             projectStateManager.addProject(title, description, people);
             this.clearInputs();
         }
-    }
-    configure() {
-        this.templateChildElement.addEventListener("submit", this.submitHandler);
-    }
-    attach() {
-        this.destinationElement.insertAdjacentElement("afterbegin", this.templateChildElement);
     }
 }
 __decorate([

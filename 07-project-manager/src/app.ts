@@ -168,6 +168,14 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     });
   }
 
+  renderContent() {
+    const listId = `${this.listCategory}-projects-list`;
+    this.templateChildElement.querySelector("ul")!.id = listId;
+
+    const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
+    this.templateChildElement.querySelector("h2")!.textContent = headingContent;
+  }
+
   private renderProjects() {
     const projectsUl = document.getElementById(
       `${this.listCategory}-projects-list`
@@ -180,38 +188,15 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
       projectsUl.appendChild(listEl);
     }
   }
-
-  renderContent() {
-    const listId = `${this.listCategory}-projects-list`;
-    this.templateChildElement.querySelector("ul")!.id = listId;
-
-    const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
-    this.templateChildElement.querySelector("h2")!.textContent = headingContent;
-  }
 }
 
-class Form {
-  private templateElement: HTMLTemplateElement;
-  private destinationElement: HTMLDivElement;
-  private templateChildElement: HTMLFormElement;
+class Form extends Component<HTMLDivElement, HTMLFormElement> {
   private titleInput: HTMLInputElement;
   private descriptionInput: HTMLInputElement;
   private peopleInput: HTMLInputElement;
 
   constructor() {
-    this.templateElement = document.getElementById(
-      "project-input"
-    ) as HTMLTemplateElement;
-    this.destinationElement = document.getElementById("app") as HTMLDivElement;
-
-    const importedNode = document.importNode(
-      this.templateElement.content,
-      true
-    );
-
-    this.templateChildElement =
-      importedNode.firstElementChild as HTMLFormElement;
-    this.templateChildElement.id = "user-input";
+    super("project-input", "app", true, "user-input");
 
     this.titleInput = this.templateChildElement.querySelector(
       "#title"
@@ -224,8 +209,13 @@ class Form {
     ) as HTMLInputElement;
 
     this.configure();
-    this.attach();
   }
+
+  configure() {
+    this.templateChildElement.addEventListener("submit", this.submitHandler);
+  }
+
+  renderContent() {}
 
   private gatherUserInput(): [string, string, number] | void {
     const enteredTitle = this.titleInput.value;
@@ -276,17 +266,6 @@ class Form {
       projectStateManager.addProject(title, description, people);
       this.clearInputs();
     }
-  }
-
-  private configure() {
-    this.templateChildElement.addEventListener("submit", this.submitHandler);
-  }
-
-  private attach() {
-    this.destinationElement.insertAdjacentElement(
-      "afterbegin",
-      this.templateChildElement
-    );
   }
 }
 
