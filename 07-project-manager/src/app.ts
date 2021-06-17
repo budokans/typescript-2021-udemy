@@ -1,8 +1,8 @@
 // Project Types
 
 enum ProjectStatus {
-  ACTIVE,
-  FINISHED,
+  Active,
+  Finished,
 }
 
 class Project {
@@ -44,7 +44,7 @@ class ProjectState {
       title,
       description,
       numOfPeople,
-      ProjectStatus.ACTIVE
+      ProjectStatus.Active
     );
     this.projects.push(project);
 
@@ -108,7 +108,7 @@ class ProjectList {
   private sectionElement: HTMLElement;
   private assignedProjects: Project[];
 
-  constructor(private projectStatus: "active" | "finished") {
+  constructor(private listCategory: "active" | "finished") {
     this.templateElement = document.getElementById(
       "project-list"
     ) as HTMLTemplateElement;
@@ -123,7 +123,14 @@ class ProjectList {
     this.assignedProjects = [];
 
     projectStateManager.addListener((projects: Project[]) => {
-      this.assignedProjects = projects;
+      const relevantProjects = projects.filter((project) => {
+        if (this.listCategory === "active") {
+          return project.status === ProjectStatus.Active;
+        } else {
+          return project.status === ProjectStatus.Finished;
+        }
+      });
+      this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
 
@@ -133,7 +140,7 @@ class ProjectList {
 
   private renderProjects() {
     const projectsUl = document.getElementById(
-      `${this.projectStatus}-projects-list`
+      `${this.listCategory}-projects-list`
     ) as HTMLUListElement;
     for (const project of this.assignedProjects) {
       const listEl = document.createElement("li");
@@ -143,12 +150,12 @@ class ProjectList {
   }
 
   private renderContent() {
-    this.sectionElement.id = `${this.projectStatus}-projects`;
+    this.sectionElement.id = `${this.listCategory}-projects`;
 
-    const listId = `${this.projectStatus}-projects-list`;
+    const listId = `${this.listCategory}-projects-list`;
     this.sectionElement.querySelector("ul")!.id = listId;
 
-    const headingContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
+    const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
     this.sectionElement.querySelector("h2")!.textContent = headingContent;
   }
 

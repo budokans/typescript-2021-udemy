@@ -7,8 +7,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 var ProjectStatus;
 (function (ProjectStatus) {
-    ProjectStatus[ProjectStatus["ACTIVE"] = 0] = "ACTIVE";
-    ProjectStatus[ProjectStatus["FINISHED"] = 1] = "FINISHED";
+    ProjectStatus[ProjectStatus["Active"] = 0] = "Active";
+    ProjectStatus[ProjectStatus["Finished"] = 1] = "Finished";
 })(ProjectStatus || (ProjectStatus = {}));
 class Project {
     constructor(id, title, description, people, status) {
@@ -35,7 +35,7 @@ class ProjectState {
     }
     addProject(title, description, numOfPeople) {
         const id = Math.random().toString();
-        const project = new Project(id, title, description, numOfPeople, ProjectStatus.ACTIVE);
+        const project = new Project(id, title, description, numOfPeople, ProjectStatus.Active);
         this.projects.push(project);
         for (const listener of this.listeners) {
             listener(this.projects.slice());
@@ -76,22 +76,30 @@ function Autobind(_, _2, descriptor) {
     return newDescriptor;
 }
 class ProjectList {
-    constructor(projectStatus) {
-        this.projectStatus = projectStatus;
+    constructor(listCategory) {
+        this.listCategory = listCategory;
         this.templateElement = document.getElementById("project-list");
         this.targetElement = document.getElementById("app");
         const importedNode = document.importNode(this.templateElement.content, true);
         this.sectionElement = importedNode.firstElementChild;
         this.assignedProjects = [];
         projectStateManager.addListener((projects) => {
-            this.assignedProjects = projects;
+            const relevantProjects = projects.filter((project) => {
+                if (this.listCategory === "active") {
+                    return project.status === ProjectStatus.Active;
+                }
+                else {
+                    return project.status === ProjectStatus.Finished;
+                }
+            });
+            this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
         this.attach();
         this.renderContent();
     }
     renderProjects() {
-        const projectsUl = document.getElementById(`${this.projectStatus}-projects-list`);
+        const projectsUl = document.getElementById(`${this.listCategory}-projects-list`);
         for (const project of this.assignedProjects) {
             const listEl = document.createElement("li");
             listEl.textContent = project.title;
@@ -99,10 +107,10 @@ class ProjectList {
         }
     }
     renderContent() {
-        this.sectionElement.id = `${this.projectStatus}-projects`;
-        const listId = `${this.projectStatus}-projects-list`;
+        this.sectionElement.id = `${this.listCategory}-projects`;
+        const listId = `${this.listCategory}-projects-list`;
         this.sectionElement.querySelector("ul").id = listId;
-        const headingContent = `${this.projectStatus.toUpperCase()} PROJECTS`;
+        const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
         this.sectionElement.querySelector("h2").textContent = headingContent;
     }
     attach() {
