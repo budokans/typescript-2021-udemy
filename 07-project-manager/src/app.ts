@@ -1,7 +1,24 @@
+// Project Types
+
+enum ProjectStatus {
+  ACTIVE,
+  FINISHED,
+}
+
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {}
+}
+
 // State Management
 
 class ProjectState {
-  private projects: any[] = [];
+  private projects: Project[] = [];
   private listeners: any[] = [];
   private static instance: ProjectState;
 
@@ -20,12 +37,13 @@ class ProjectState {
 
   addProject(title: string, description: string, numOfPeople: number) {
     const id = Math.random().toString();
-    const project = {
+    const project = new Project(
       id,
       title,
       description,
-      people: numOfPeople,
-    };
+      numOfPeople,
+      ProjectStatus.ACTIVE
+    );
     this.projects.push(project);
 
     for (const listener of this.listeners) {
@@ -86,7 +104,7 @@ class ProjectList {
   private templateElement: HTMLTemplateElement;
   private targetElement: HTMLDivElement;
   private sectionElement: HTMLElement;
-  private assignedProjects: any[];
+  private assignedProjects: Project[];
 
   constructor(private projectStatus: "active" | "finished") {
     this.templateElement = document.getElementById(
@@ -102,7 +120,7 @@ class ProjectList {
     this.sectionElement = importedNode.firstElementChild as HTMLElement;
     this.assignedProjects = [];
 
-    projectStateManager.addListener((projects: any[]) => {
+    projectStateManager.addListener((projects: Project[]) => {
       this.assignedProjects = projects;
       this.renderProjects();
     });
