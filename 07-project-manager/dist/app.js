@@ -142,7 +142,19 @@ class ProjectList extends Component {
         this.configure();
         this.renderContent();
     }
+    dragOverHandler(_) {
+        const ulElement = this.templateChildElement.querySelector("ul");
+        ulElement.classList.add("droppable");
+    }
+    dropHandler(_) { }
+    dragLeaveHandler(_) {
+        const ulElement = this.templateChildElement.querySelector("ul");
+        ulElement.classList.remove("droppable");
+    }
     configure() {
+        this.templateChildElement.addEventListener("dragover", this.dragOverHandler);
+        this.templateChildElement.addEventListener("drop", this.dropHandler);
+        this.templateChildElement.addEventListener("dragleave", this.dragLeaveHandler);
         projectStateManager.addListener((projects) => {
             const relevantProjects = projects.filter((project) => {
                 if (this.listCategory === "active") {
@@ -169,6 +181,15 @@ class ProjectList extends Component {
         }
     }
 }
+__decorate([
+    Autobind
+], ProjectList.prototype, "dragOverHandler", null);
+__decorate([
+    Autobind
+], ProjectList.prototype, "dropHandler", null);
+__decorate([
+    Autobind
+], ProjectList.prototype, "dragLeaveHandler", null);
 class Form extends Component {
     constructor() {
         super("project-input", "app", true, "user-input");
