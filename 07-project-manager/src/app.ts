@@ -102,26 +102,59 @@ function Autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   return newDescriptor;
 }
 
-class ProjectList {
+abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   private templateElement: HTMLTemplateElement;
-  private targetElement: HTMLDivElement;
-  private sectionElement: HTMLElement;
-  private assignedProjects: Project[];
+  protected destinationElement: T;
+  protected templateChildElement: U;
 
-  constructor(private listCategory: "active" | "finished") {
+  constructor(
+    templateId: string,
+    destinationElementId: string,
+    insertAtStart: Boolean,
+    newElementId?: string
+  ) {
     this.templateElement = document.getElementById(
-      "project-list"
+      templateId
     ) as HTMLTemplateElement;
-    this.targetElement = document.getElementById("app") as HTMLDivElement;
+    this.destinationElement = document.getElementById(
+      destinationElementId
+    ) as T;
 
     const importedNode = document.importNode(
       this.templateElement.content,
       true
     );
+    this.templateChildElement = importedNode.firstElementChild as U;
 
-    this.sectionElement = importedNode.firstElementChild as HTMLElement;
+    if (newElementId) {
+      this.templateChildElement.id = newElementId;
+    }
+
+    this.attach(insertAtStart);
+  }
+
+  private attach(insertAtBeginning: Boolean) {
+    this.destinationElement.insertAdjacentElement(
+      insertAtBeginning ? "afterbegin" : "beforeend",
+      this.templateChildElement
+    );
+  }
+
+  abstract configure(): void;
+  abstract renderContent(): void;
+}
+
+class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+  private assignedProjects: Project[];
+
+  constructor(private listCategory: "active" | "finished") {
+    super("project-list", "app", false, `${listCategory}-projects`);
     this.assignedProjects = [];
+    this.configure();
+    this.renderContent();
+  }
 
+  configure() {
     projectStateManager.addListener((projects: Project[]) => {
       const relevantProjects = projects.filter((project) => {
         if (this.listCategory === "active") {
@@ -133,9 +166,6 @@ class ProjectList {
       this.assignedProjects = relevantProjects;
       this.renderProjects();
     });
-
-    this.attach();
-    this.renderContent();
   }
 
   private renderProjects() {
@@ -143,6 +173,7 @@ class ProjectList {
       `${this.listCategory}-projects-list`
     ) as HTMLUListElement;
     projectsUl.innerHTML = "";
+
     for (const project of this.assignedProjects) {
       const listEl = document.createElement("li");
       listEl.textContent = project.title;
@@ -150,25 +181,19 @@ class ProjectList {
     }
   }
 
-  private renderContent() {
-    this.sectionElement.id = `${this.listCategory}-projects`;
-
+  renderContent() {
     const listId = `${this.listCategory}-projects-list`;
-    this.sectionElement.querySelector("ul")!.id = listId;
+    this.templateChildElement.querySelector("ul")!.id = listId;
 
     const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
-    this.sectionElement.querySelector("h2")!.textContent = headingContent;
-  }
-
-  private attach() {
-    this.targetElement.insertAdjacentElement("beforeend", this.sectionElement);
+    this.templateChildElement.querySelector("h2")!.textContent = headingContent;
   }
 }
 
 class Form {
   private templateElement: HTMLTemplateElement;
-  private targetElement: HTMLDivElement;
-  private formElement: HTMLFormElement;
+  private destinationElement: HTMLDivElement;
+  private templateChildElement: HTMLFormElement;
   private titleInput: HTMLInputElement;
   private descriptionInput: HTMLInputElement;
   private peopleInput: HTMLInputElement;
@@ -177,23 +202,24 @@ class Form {
     this.templateElement = document.getElementById(
       "project-input"
     ) as HTMLTemplateElement;
-    this.targetElement = document.getElementById("app") as HTMLDivElement;
+    this.destinationElement = document.getElementById("app") as HTMLDivElement;
 
     const importedNode = document.importNode(
       this.templateElement.content,
       true
     );
 
-    this.formElement = importedNode.firstElementChild as HTMLFormElement;
-    this.formElement.id = "user-input";
+    this.templateChildElement =
+      importedNode.firstElementChild as HTMLFormElement;
+    this.templateChildElement.id = "user-input";
 
-    this.titleInput = this.formElement.querySelector(
+    this.titleInput = this.templateChildElement.querySelector(
       "#title"
     ) as HTMLInputElement;
-    this.descriptionInput = this.formElement.querySelector(
+    this.descriptionInput = this.templateChildElement.querySelector(
       "#description"
     ) as HTMLInputElement;
-    this.peopleInput = this.formElement.querySelector(
+    this.peopleInput = this.templateChildElement.querySelector(
       "#people"
     ) as HTMLInputElement;
 
@@ -253,11 +279,14 @@ class Form {
   }
 
   private configure() {
-    this.formElement.addEventListener("submit", this.submitHandler);
+    this.templateChildElement.addEventListener("submit", this.submitHandler);
   }
 
   private attach() {
-    this.targetElement.insertAdjacentElement("afterbegin", this.formElement);
+    this.destinationElement.insertAdjacentElement(
+      "afterbegin",
+      this.templateChildElement
+    );
   }
 }
 

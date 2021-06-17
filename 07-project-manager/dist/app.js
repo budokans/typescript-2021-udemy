@@ -75,14 +75,30 @@ function Autobind(_, _2, descriptor) {
     };
     return newDescriptor;
 }
-class ProjectList {
-    constructor(listCategory) {
-        this.listCategory = listCategory;
-        this.templateElement = document.getElementById("project-list");
-        this.targetElement = document.getElementById("app");
+class Component {
+    constructor(templateId, destinationElementId, insertAtStart, newElementId) {
+        this.templateElement = document.getElementById(templateId);
+        this.destinationElement = document.getElementById(destinationElementId);
         const importedNode = document.importNode(this.templateElement.content, true);
-        this.sectionElement = importedNode.firstElementChild;
+        this.templateChildElement = importedNode.firstElementChild;
+        if (newElementId) {
+            this.templateChildElement.id = newElementId;
+        }
+        this.attach(insertAtStart);
+    }
+    attach(insertAtBeginning) {
+        this.destinationElement.insertAdjacentElement(insertAtBeginning ? "afterbegin" : "beforeend", this.templateChildElement);
+    }
+}
+class ProjectList extends Component {
+    constructor(listCategory) {
+        super("project-list", "app", false, `${listCategory}-projects`);
+        this.listCategory = listCategory;
         this.assignedProjects = [];
+        this.configure();
+        this.renderContent();
+    }
+    configure() {
         projectStateManager.addListener((projects) => {
             const relevantProjects = projects.filter((project) => {
                 if (this.listCategory === "active") {
@@ -95,8 +111,6 @@ class ProjectList {
             this.assignedProjects = relevantProjects;
             this.renderProjects();
         });
-        this.attach();
-        this.renderContent();
     }
     renderProjects() {
         const projectsUl = document.getElementById(`${this.listCategory}-projects-list`);
@@ -108,26 +122,23 @@ class ProjectList {
         }
     }
     renderContent() {
-        this.sectionElement.id = `${this.listCategory}-projects`;
         const listId = `${this.listCategory}-projects-list`;
-        this.sectionElement.querySelector("ul").id = listId;
+        this.templateChildElement.querySelector("ul").id = listId;
         const headingContent = `${this.listCategory.toUpperCase()} PROJECTS`;
-        this.sectionElement.querySelector("h2").textContent = headingContent;
-    }
-    attach() {
-        this.targetElement.insertAdjacentElement("beforeend", this.sectionElement);
+        this.templateChildElement.querySelector("h2").textContent = headingContent;
     }
 }
 class Form {
     constructor() {
         this.templateElement = document.getElementById("project-input");
-        this.targetElement = document.getElementById("app");
+        this.destinationElement = document.getElementById("app");
         const importedNode = document.importNode(this.templateElement.content, true);
-        this.formElement = importedNode.firstElementChild;
-        this.formElement.id = "user-input";
-        this.titleInput = this.formElement.querySelector("#title");
-        this.descriptionInput = this.formElement.querySelector("#description");
-        this.peopleInput = this.formElement.querySelector("#people");
+        this.templateChildElement =
+            importedNode.firstElementChild;
+        this.templateChildElement.id = "user-input";
+        this.titleInput = this.templateChildElement.querySelector("#title");
+        this.descriptionInput = this.templateChildElement.querySelector("#description");
+        this.peopleInput = this.templateChildElement.querySelector("#people");
         this.configure();
         this.attach();
     }
@@ -175,10 +186,10 @@ class Form {
         }
     }
     configure() {
-        this.formElement.addEventListener("submit", this.submitHandler);
+        this.templateChildElement.addEventListener("submit", this.submitHandler);
     }
     attach() {
-        this.targetElement.insertAdjacentElement("afterbegin", this.formElement);
+        this.destinationElement.insertAdjacentElement("afterbegin", this.templateChildElement);
     }
 }
 __decorate([
