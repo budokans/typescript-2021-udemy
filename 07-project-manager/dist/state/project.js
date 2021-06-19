@@ -1,5 +1,5 @@
 import { Project, ProjectStatus } from "../models/project.js";
-export class State {
+class State {
     constructor() {
         this.listeners = [];
     }
@@ -7,7 +7,7 @@ export class State {
         this.listeners.push(newListener);
     }
 }
-export class ProjectState extends State {
+class ProjectState extends State {
     constructor() {
         super();
         this.projects = [];
