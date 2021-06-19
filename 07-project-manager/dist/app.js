@@ -42,6 +42,16 @@ class ProjectState extends State {
         const id = Math.random().toString();
         const project = new Project(id, title, description, numOfPeople, ProjectStatus.Active);
         this.projects.push(project);
+        this.callListeners();
+    }
+    moveProject(projectId, newStatus) {
+        const project = this.projects.find((proj) => proj.id === projectId);
+        if (project && project.status !== newStatus) {
+            project.status = newStatus;
+            this.callListeners();
+        }
+    }
+    callListeners() {
         for (const listener of this.listeners) {
             listener(this.projects.slice());
         }
@@ -109,7 +119,8 @@ class ProjectItem extends Component {
         return "1 contributor.";
     }
     dragStartHandler(event) {
-        console.log(event);
+        event.dataTransfer.setData("text/plain", this.project.id);
+        event.dataTransfer.effectAllowed = "move";
     }
     dragEndHandler(_) {
         console.log("End");
@@ -142,11 +153,19 @@ class ProjectList extends Component {
         this.configure();
         this.renderContent();
     }
-    dragOverHandler(_) {
-        const ulElement = this.templateChildElement.querySelector("ul");
-        ulElement.classList.add("droppable");
+    dragOverHandler(event) {
+        if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain") {
+            event.preventDefault();
+            const ulElement = this.templateChildElement.querySelector("ul");
+            ulElement.classList.add("droppable");
+        }
     }
-    dropHandler(_) { }
+    dropHandler(event) {
+        const projectId = event.dataTransfer.getData("text/plain");
+        projectStateManager.moveProject(projectId, this.listCategory === "active"
+            ? ProjectStatus.Active
+            : ProjectStatus.Finished);
+    }
     dragLeaveHandler(_) {
         const ulElement = this.templateChildElement.querySelector("ul");
         ulElement.classList.remove("droppable");
