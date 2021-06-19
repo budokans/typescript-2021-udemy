@@ -1,5 +1,5 @@
-import { Form } from "./components/form.js";
-import { ProjectList } from "./components/project-list.js";
+import { Form } from "./components/form";
+import { ProjectList } from "./components/project-list";
 
 new Form();
 new ProjectList("active");
