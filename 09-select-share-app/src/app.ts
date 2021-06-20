@@ -2,13 +2,27 @@ import axios from "axios";
 
 const GOOGLE_API_KEY = "AIzaSyB5wtYmn1rXbew60NTXtiqpPDBRM8hjREo";
 
-const form = document.querySelector("form")!;
-const addressInput = document.getElementById("address") as HTMLInputElement;
-
 type GoogleGeocodingResponse = {
   results: { geometry: { location: { lat: number; lng: number } } }[];
   status: "OK" | "ZERO_RESULTS";
 };
+
+function initMap(coordinates: { lat: number; lng: number }): void {
+  const map = new google.maps.Map(
+    document.getElementById("map") as HTMLElement,
+    {
+      center: coordinates,
+      zoom: 16,
+    }
+  );
+  new google.maps.Marker({
+    position: coordinates,
+    map,
+  });
+}
+
+const form = document.querySelector("form")!;
+const addressInput = document.getElementById("address") as HTMLInputElement;
 
 const searchHandler = (event: Event) => {
   event.preventDefault();
@@ -25,9 +39,12 @@ const searchHandler = (event: Event) => {
         throw new Error("Something went wrong!");
       }
       const coordinates = res.data.results[0].geometry.location;
-      console.log(coordinates);
+      initMap(coordinates);
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      alert(err.message);
+      console.log(err);
+    });
 };
 
 form.addEventListener("submit", searchHandler);
