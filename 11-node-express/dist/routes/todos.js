@@ -5,6 +5,6 @@ const express_1 = require("express");
 const todos_1 = require("../controllers/todos");
 exports.router = express_1.Router();
 exports.router.post("/", todos_1.createTodo);
-exports.router.get("/");
-exports.router.patch("/:id");
+exports.router.get("/", todos_1.getTodos);
+exports.router.patch("/:id", todos_1.updateTodo);
 exports.router.delete("/:id");

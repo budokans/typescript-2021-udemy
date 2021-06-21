@@ -11,3 +11,21 @@ export const createTodo: RequestHandler = (req, res, next) => {
 
   res.status(201).json({ message: "Todo created", createdTodo: newTodo });
 };
+
+export const getTodos: RequestHandler = (req, res, next) => {
+  res.json({ todos: TODOS });
+};
+
+export const updateTodo: RequestHandler<{ id: string }> = (req, res, next) => {
+  const id = req.params.id;
+  const newTitle = (req.body as { title: string }).title;
+
+  const idx = TODOS.findIndex((todo) => id === todo.id);
+
+  if (idx === -1) {
+    throw new Error("Todo not found!");
+  }
+
+  TODOS[idx] = new Todo(id, newTitle);
+  res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[idx] });
+};
