@@ -10,6 +10,7 @@ export const NewTodo: React.FC<NewTodoProps> = ({ onAddTodo }) => {
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
     onAddTodo(inputtedTodoTitle);
+    setInputtedTodoTitle("");
   };
 
   return (
@@ -19,6 +20,7 @@ export const NewTodo: React.FC<NewTodoProps> = ({ onAddTodo }) => {
         <input
           type="text"
           id="todo-title"
+          placeholder="e.g. Files taxes"
           onChange={({ target }) => setInputtedTodoTitle(target.value)}
           value={inputtedTodoTitle}
         />

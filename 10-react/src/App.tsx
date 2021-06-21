@@ -1,14 +1,16 @@
 import React, { useState } from "react";
+import { Todo } from "./todo.model";
 import { NewTodo } from "./components/NewTodo";
 import { TodoList } from "./components/TodoList";
 
 const App: React.FC = () => {
-  const [todos, setTodos] = useState([
-    { id: 1, title: "Finish this goddamn course" },
-  ]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   const addTodo = (newTodoTitle: string) => {
-    setTodos([...todos, { id: todos.length + 1, title: newTodoTitle }]);
+    setTodos((prevTodos) => [
+      ...prevTodos,
+      { id: Math.random().toString(), title: newTodoTitle },
+    ]);
   };
 
   return (
