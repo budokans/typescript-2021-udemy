@@ -7,4 +7,4 @@ exports.router = express_1.Router();
 exports.router.post("/", todos_1.createTodo);
 exports.router.get("/", todos_1.getTodos);
 exports.router.patch("/:id", todos_1.updateTodo);
-exports.router.delete("/:id");
+exports.router.delete("/:id", todos_1.deleteTodo);

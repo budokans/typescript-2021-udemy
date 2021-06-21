@@ -29,3 +29,15 @@ export const updateTodo: RequestHandler<{ id: string }> = (req, res, next) => {
   TODOS[idx] = new Todo(id, newTitle);
   res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[idx] });
 };
+
+export const deleteTodo: RequestHandler<{ id: string }> = (req, res, next) => {
+  const id = req.params.id;
+  const idx = TODOS.findIndex((todo) => id === todo.id);
+
+  if (idx === -1) {
+    throw new Error("Todo not found!");
+  }
+
+  const deletedTodo = TODOS.splice(idx, 1);
+  res.status(201).json({ message: "Todo deleted!", deletedTodo });
+};
