@@ -7,6 +7,10 @@ interface QueryParams {
   id: string;
 }
 
+interface RequestBody {
+  title: string;
+}
+
 const getId = (params: QueryParams) => {
   return params.id;
 }
@@ -15,8 +19,12 @@ const getTodoIdx = (id: string) => {
   return TODOS.findIndex(todo => id === todo.id);
 }
 
+const getTitle = (reqBody: RequestBody) => {
+  return reqBody.title;
+}
+
 export const createTodo: RequestHandler = (req, res, next) => {
-  const title = (req.body as { title: string }).title;
+  const title = getTitle(req.body);
   const newTodo = new Todo(Math.random().toString(), title);
 
   TODOS.push(newTodo);
@@ -36,7 +44,7 @@ export const updateTodo: RequestHandler<QueryParams> = (req, res, next) => {
     throw new Error("Todo not found!");
   }
 
-  const newTitle = (req.body as { title: string }).title;
+  const newTitle = getTitle(req.body);
 
   TODOS[todoIdx] = new Todo(id, newTitle);
   res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[todoIdx] });

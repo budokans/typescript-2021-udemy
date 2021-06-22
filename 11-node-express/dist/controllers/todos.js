@@ -9,8 +9,11 @@ const getId = (params) => {
 const getTodoIdx = (id) => {
     return TODOS.findIndex(todo => id === todo.id);
 };
+const getTitle = (reqBody) => {
+    return reqBody.title;
+};
 const createTodo = (req, res, next) => {
-    const title = req.body.title;
+    const title = getTitle(req.body);
     const newTodo = new todo_1.Todo(Math.random().toString(), title);
     TODOS.push(newTodo);
     res.status(201).json({ message: "Todo created", createdTodo: newTodo });
@@ -26,7 +29,7 @@ const updateTodo = (req, res, next) => {
     if (todoIdx === -1) {
         throw new Error("Todo not found!");
     }
-    const newTitle = req.body.title;
+    const newTitle = getTitle(req.body);
     TODOS[todoIdx] = new todo_1.Todo(id, newTitle);
     res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[todoIdx] });
 };
