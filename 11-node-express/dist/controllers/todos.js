@@ -3,6 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteTodo = exports.updateTodo = exports.getTodos = exports.createTodo = void 0;
 const todo_1 = require("../models/todo");
 const TODOS = [];
+const getId = (params) => {
+    return params.id;
+};
+const getTodoIdx = (id) => {
+    return TODOS.findIndex(todo => id === todo.id);
+};
 const createTodo = (req, res, next) => {
     const title = req.body.title;
     const newTodo = new todo_1.Todo(Math.random().toString(), title);
@@ -15,23 +21,23 @@ const getTodos = (req, res, next) => {
 };
 exports.getTodos = getTodos;
 const updateTodo = (req, res, next) => {
-    const id = req.params.id;
-    const newTitle = req.body.title;
-    const idx = TODOS.findIndex((todo) => id === todo.id);
-    if (idx === -1) {
+    const id = getId(req.params);
+    const todoIdx = getTodoIdx(id);
+    if (todoIdx === -1) {
         throw new Error("Todo not found!");
     }
-    TODOS[idx] = new todo_1.Todo(id, newTitle);
-    res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[idx] });
+    const newTitle = req.body.title;
+    TODOS[todoIdx] = new todo_1.Todo(id, newTitle);
+    res.status(201).json({ message: "Todo updated!", updatedTodo: TODOS[todoIdx] });
 };
 exports.updateTodo = updateTodo;
 const deleteTodo = (req, res, next) => {
-    const id = req.params.id;
-    const idx = TODOS.findIndex((todo) => id === todo.id);
-    if (idx === -1) {
+    const id = getId(req.params);
+    const todoIdx = getTodoIdx(id);
+    if (todoIdx === -1) {
         throw new Error("Todo not found!");
     }
-    const deletedTodo = TODOS.splice(idx, 1);
+    const deletedTodo = TODOS.splice(todoIdx, 1);
     res.status(201).json({ message: "Todo deleted!", deletedTodo });
 };
 exports.deleteTodo = deleteTodo;
