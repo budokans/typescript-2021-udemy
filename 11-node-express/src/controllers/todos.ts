@@ -15,6 +15,10 @@ const getId = (params: QueryParams) => {
   return params.id;
 }
 
+const generateUniqueId = () => {
+  return Math.random().toString();
+}
+
 const getTodoIdx = (id: string) => {
   return TODOS.findIndex(todo => id === todo.id);
 }
@@ -24,8 +28,9 @@ const getTitle = (reqBody: RequestBody) => {
 }
 
 export const createTodo: RequestHandler = (req, res, next) => {
+  const id = generateUniqueId();
   const title = getTitle(req.body);
-  const newTodo = new Todo(Math.random().toString(), title);
+  const newTodo = new Todo(id, title);
 
   TODOS.push(newTodo);
 

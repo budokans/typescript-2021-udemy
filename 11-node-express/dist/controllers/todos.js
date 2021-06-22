@@ -6,6 +6,9 @@ const TODOS = [];
 const getId = (params) => {
     return params.id;
 };
+const generateUniqueId = () => {
+    return Math.random().toString();
+};
 const getTodoIdx = (id) => {
     return TODOS.findIndex(todo => id === todo.id);
 };
@@ -13,8 +16,9 @@ const getTitle = (reqBody) => {
     return reqBody.title;
 };
 const createTodo = (req, res, next) => {
+    const id = generateUniqueId();
     const title = getTitle(req.body);
-    const newTodo = new todo_1.Todo(Math.random().toString(), title);
+    const newTodo = new todo_1.Todo(id, title);
     TODOS.push(newTodo);
     res.status(201).json({ message: "Todo created", createdTodo: newTodo });
 };
